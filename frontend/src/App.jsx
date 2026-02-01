@@ -20,9 +20,23 @@ export default function App() {
     const name = localStorage.getItem('brawl_name');
     const agentId = localStorage.getItem('brawl_agentId');
     if (token && name && agentId) {
-      setAgent({ token, name, agentId });
-      setView('game');
-      getMyFighter().then(f => { if (f) setFighter(f); });
+      // Verify token is still valid before restoring session
+      getMyFighter().then(f => {
+        if (f) {
+          setAgent({ token, name, agentId });
+          setFighter(f);
+          setView('game');
+        } else {
+          // Token invalid (DB cleaned etc.) — wipe stale session
+          localStorage.removeItem('brawl_token');
+          localStorage.removeItem('brawl_name');
+          localStorage.removeItem('brawl_agentId');
+        }
+      }).catch(() => {
+        localStorage.removeItem('brawl_token');
+        localStorage.removeItem('brawl_name');
+        localStorage.removeItem('brawl_agentId');
+      });
     }
   }, []);
 
