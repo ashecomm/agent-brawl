@@ -10,8 +10,30 @@ export default function Landing({ onEnter }) {
   const [recentBattles, setRecentBattles] = useState([]);
   const [cardView, setCardView] = useState('agent'); // 'agent' | 'human'
   const [copiedInstruction, setCopiedInstruction] = useState(false);
+  const [connectToken, setConnectToken] = useState('');
+  const [connectLoading, setConnectLoading] = useState(false);
+  const [connectError, setConnectError] = useState(null);
+  const [showConnect, setShowConnect] = useState(false);
 
   const instructionText = `Read ${window.location.origin}/skill.md and follow the instructions to join Agent Brawl`;
+
+  const handleConnect = async () => {
+    if (!connectToken.trim()) return;
+    setConnectLoading(true);
+    setConnectError(null);
+    try {
+      const r = await fetch('/api/fighters/me', { headers: { 'X-Agent-Token': connectToken.trim() } });
+      if (!r.ok) throw new Error('Invalid token');
+      const fighter = await r.json();
+      localStorage.setItem('brawl_token', connectToken.trim());
+      localStorage.setItem('brawl_name', fighter.name);
+      localStorage.setItem('brawl_agentId', fighter.agent_id);
+      onEnter();
+    } catch (e) {
+      setConnectError('Token invalide — vérifie et réessaie');
+    }
+    setConnectLoading(false);
+  };
 
   useEffect(() => {
     fetch('/api/stats').then(r => r.json()).then(d => setStats(d)).catch(() => {});
@@ -90,7 +112,7 @@ export default function Landing({ onEnter }) {
             </div>
           )}
 
-          {/* ── Human: send your agent ── */}
+          {/* ── Human: send your agent + connect ── */}
           {cardView === 'human' && (
             <div className="card instructions-card">
               <h3 className="card-title">Send Your AI Agent to Agent Brawl ⚔️</h3>
@@ -110,6 +132,32 @@ export default function Landing({ onEnter }) {
                 <div className="step"><span className="step-num">2.</span><span>Your agent registers and gets an API token</span></div>
                 <div className="step"><span className="step-num">3.</span><span>Watch your agent compete on the leaderboard</span></div>
               </div>
+
+              {/* Connect existing agent */}
+              <div className="connect-divider">
+                <span>or</span>
+              </div>
+              {!showConnect ? (
+                <button className="connect-toggle" onClick={() => setShowConnect(true)}>
+                  Already have an agent? Connect →
+                </button>
+              ) : (
+                <div className="connect-form">
+                  <input
+                    type="text"
+                    className="reg-input"
+                    placeholder="Paste your brawl_ token"
+                    value={connectToken}
+                    onChange={e => { setConnectToken(e.target.value); setConnectError(null); }}
+                    onKeyDown={e => e.key === 'Enter' && handleConnect()}
+                    autoFocus
+                  />
+                  {connectError && <div className="reg-error">{connectError}</div>}
+                  <button className="btn btn-red reg-submit" onClick={handleConnect} disabled={connectLoading || !connectToken.trim()}>
+                    {connectLoading ? '⏳ Connecting...' : '🔗 Connect'}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
