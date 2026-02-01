@@ -11,7 +11,8 @@ router.get('/', (req, res) => {
 
   res.json(fighters.map((f, i) => ({
     rank: i + 1,
-    wallet: f.wallet,
+    agentId: f.agent_id,
+    name: f.name,
     level: f.level,
     elo: f.elo,
     league: getLeague(f.elo),

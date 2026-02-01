@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getLeaderboard } from '../api.js';
-import { generateAvatar, shortenWallet } from '../App.jsx';
+import { generateAvatar } from '../Avatar.jsx';
 
-export default function Leaderboard({ wallet }) {
+export default function Leaderboard({ agent }) {
   const [data, setData] = useState([]);
   const [sort, setSort] = useState('elo');
   const [loading, setLoading] = useState(true);
@@ -31,42 +31,26 @@ export default function Leaderboard({ wallet }) {
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <table className="leaderboard-table" style={{ width: '100%' }}>
             <thead>
-              <tr>
-                <th>#</th>
-                <th>Fighter</th>
-                <th>League</th>
-                <th>ELO</th>
-                <th>Lv</th>
-                <th>W/L</th>
-              </tr>
+              <tr><th>#</th><th>Fighter</th><th>League</th><th>ELO</th><th>Lv</th><th>W/L</th></tr>
             </thead>
             <tbody>
               {data.map((f, i) => {
-                const isMe = f.wallet === wallet?.toLowerCase();
-                const isHoF = f.isHallOfFame;
+                const isMe = f.agentId === agent?.agentId;
                 return (
-                  <tr key={f.wallet} className={`${isHoF ? 'hof' : ''} ${isMe ? 'mine' : ''}`} style={isMe ? { background: '#c77dff11' } : {}}>
-                    <td>
-                      <span className="rank-medal">
-                        {i < 3 ? medals[i] : i + 1}
-                      </span>
-                    </td>
+                  <tr key={f.agentId} className={f.isHallOfFame ? 'hof' : ''} style={isMe ? { background: '#c77dff11' } : {}}>
+                    <td><span className="rank-medal">{i < 3 ? medals[i] : i + 1}</span></td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        {generateAvatar(f.avatar_seed, 32)}
-                        <span style={{ fontFamily: 'monospace', fontSize: '0.8rem', color: isMe ? '#c77dff' : '#ddd' }}>{shortenWallet(f.wallet)}</span>
+                        {generateAvatar(f.avatar_seed, 30)}
+                        <span style={{ fontWeight: 600, fontSize: '0.85rem', color: isMe ? '#c77dff' : '#ddd' }}>{f.name}</span>
                         {isMe && <span style={{ fontSize: '0.65rem', color: '#c77dff' }}>(you)</span>}
-                        {isHoF && <span style={{ fontSize: '0.6rem', color: '#ffd700' }}>🏆 HoF</span>}
+                        {f.isHallOfFame && <span style={{ fontSize: '0.6rem', color: '#ffd700' }}>🏆 HoF</span>}
                       </div>
                     </td>
                     <td><span className={`league-badge league-${f.league}`}>{f.league}</span></td>
                     <td style={{ fontWeight: 600 }}>{f.elo}</td>
                     <td style={{ color: '#c77dff' }}>{f.level}</td>
-                    <td style={{ fontSize: '0.8rem' }}>
-                      <span style={{ color: '#6bcb77' }}>{f.wins}</span>
-                      <span style={{ color: '#555' }}>/</span>
-                      <span style={{ color: '#ff6b6b' }}>{f.losses}</span>
-                    </td>
+                    <td style={{ fontSize: '0.8rem' }}><span style={{ color: '#6bcb77' }}>{f.wins}</span><span style={{ color: '#555' }}>/</span><span style={{ color: '#ff6b6b' }}>{f.losses}</span></td>
                   </tr>
                 );
               })}

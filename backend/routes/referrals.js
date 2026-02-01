@@ -2,31 +2,32 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// GET /referrals/leaderboard — must be before /:wallet
+// GET /referrals/leaderboard
 router.get('/leaderboard', (req, res) => {
   const results = db.prepare(`
-    SELECT referrer as wallet, COUNT(*) as total, SUM(CASE WHEN level >= 10 THEN 1 ELSE 0 END) as active
-    FROM fighters
-    WHERE referrer IS NOT NULL
-    GROUP BY referrer
-    ORDER BY active DESC, total DESC
-    LIMIT 50
+    SELECT referrer, COUNT(*) as total, SUM(CASE WHEN level >= 10 THEN 1 ELSE 0 END) as active
+    FROM fighters WHERE referrer IS NOT NULL
+    GROUP BY referrer ORDER BY active DESC, total DESC LIMIT 50
   `).all();
-  res.json(results);
+
+  // Enrich with names
+  res.json(results.map(r => {
+    const fighter = db.prepare('SELECT name FROM fighters WHERE agent_id = ?').get(r.referrer);
+    return { ...r, name: fighter?.name || r.referrer };
+  }));
 });
 
-// GET /referrals/:wallet
-router.get('/:wallet', (req, res) => {
-  const wallet = req.params.wallet.toLowerCase();
-  const recruits = db.prepare('SELECT wallet, level, wins, created_at FROM fighters WHERE referrer = ? ORDER BY level DESC').all(wallet);
+// GET /referrals/me
+router.get('/me', (req, res) => {
+  const agentId = req.agent.id;
+  const recruits = db.prepare('SELECT agent_id, name, level, wins, created_at FROM fighters WHERE referrer = ? ORDER BY level DESC').all(agentId);
   const activeRecruits = recruits.filter(r => r.level >= 10).length;
-  const boostPercent = Math.min(recruits.length, 10);
 
   res.json({
-    wallet,
+    agentId,
     totalRecruits: recruits.length,
     activeRecruits,
-    boostPercent,
+    boostPercent: Math.min(recruits.length, 10),
     recruits
   });
 });

@@ -1,29 +1,25 @@
-import { shortenWallet } from '../App.jsx';
-
-export default function Header({ wallet, fighter, page, setPage, connectWallet }) {
+export default function Header({ agent, fighter, page, setPage, onLogo }) {
   const nav = ['arena', 'profile', 'leaderboard', 'achievements', 'referral'];
   const labels = { arena: '⚔️ Arena', profile: '👤 Profile', leaderboard: '🏆 Rankings', achievements: '🎖️ Achievements', referral: '🔗 Referrals' };
 
   return (
-    <div className="header">
-      <div className="header-logo">Agent <span>Brawl</span></div>
-      <div className="nav">
-        {nav.map(n => (
-          <button key={n} className={`nav-btn ${page === n ? 'active' : ''}`} onClick={() => setPage(n)}>
-            {labels[n]}
-          </button>
-        ))}
-      </div>
-      <div>
-        {wallet ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {fighter && <span className={`league-badge league-${fighter.league}`}>{fighter.league}</span>}
-            <button className="wallet-btn wallet-connected" onClick={() => {}}>
-              {shortenWallet(wallet)}
+    <div className="game-header">
+      <div className="game-header-inner">
+        <button className="game-logo" onClick={onLogo}>
+          <span>⚔️</span><span>Agent Brawl</span>
+        </button>
+        <div className="game-nav">
+          {nav.map(n => (
+            <button key={n} className={`game-nav-btn ${page === n ? 'active' : ''}`} onClick={() => setPage(n)}>
+              {labels[n]}
             </button>
+          ))}
+        </div>
+        {agent && (
+          <div className="game-agent">
+            {fighter && <span className="game-league" style={{ color: fighter.league === 'Bronze' ? '#cd7f32' : fighter.league === 'Silver' ? '#c0c0c0' : fighter.league === 'Gold' ? '#ffd700' : fighter.league === 'Diamond' ? '#b9f2ff' : '#ff6b35' }}>{fighter.league}</span>}
+            <span className="game-agent-name">{agent.name}</span>
           </div>
-        ) : (
-          <button className="wallet-btn" onClick={connectWallet}>Connect Wallet</button>
         )}
       </div>
     </div>
