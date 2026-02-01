@@ -75,6 +75,16 @@ db.exec(`
     earned_at TEXT,
     PRIMARY KEY (fighter_id, achievement_id)
   );
+
+  CREATE TABLE IF NOT EXISTS queue (
+    id TEXT PRIMARY KEY,
+    agent_id TEXT UNIQUE NOT NULL,
+    elo INTEGER NOT NULL,
+    status TEXT DEFAULT 'waiting',
+    result TEXT,
+    created_at TEXT,
+    FOREIGN KEY (agent_id) REFERENCES fighters(agent_id)
+  );
 `);
 
 module.exports = db;

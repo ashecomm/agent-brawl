@@ -19,13 +19,25 @@ export default function Profile({ agent, fighter, refreshFighter }) {
   if (!fighter) return <div className="empty-state"><div className="icon">👤</div><p>No fighter data</p></div>;
   if (replayBattle) return <BattleView result={replayBattle} agent={agent} onClose={() => setReplayBattle(null)} />;
 
-  const xpPct = fighter.xpToNext > 0 ? (fighter.xp / fighter.xpToNext) * 100 : 0;
   const equip = fighter.equipment || [];
   const slots = ['weapon', 'armor', 'boots', 'helmet'];
 
+  // Compute totals (base + equipment bonuses)
+  const totalAtk = fighter.base_attack + equip.reduce((s, e) => s + (e.attack_bonus || 0), 0);
+  const totalDef = fighter.base_defense + equip.reduce((s, e) => s + (e.defense_bonus || 0), 0);
+  const totalSpd = fighter.base_speed + equip.reduce((s, e) => s + (e.speed_bonus || 0), 0);
+  const totalLck = fighter.base_luck + equip.reduce((s, e) => s + (e.luck_bonus || 0), 0);
+
+  const atkBonus = totalAtk - fighter.base_attack;
+  const defBonus = totalDef - fighter.base_defense;
+  const spdBonus = totalSpd - fighter.base_speed;
+  const lckBonus = totalLck - fighter.base_luck;
+
+  const xpPct = fighter.xpToNext > 0 ? (fighter.xp / fighter.xpToNext) * 100 : 0;
+
   return (
     <div>
-      {/* Header */}
+      {/* ── Header ── */}
       <div className="card" style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
           <div>{generateAvatar(fighter.avatar_seed, 72)}</div>
@@ -54,24 +66,32 @@ export default function Profile({ agent, fighter, refreshFighter }) {
         </div>
       </div>
 
-      {/* Stats + Equipment */}
+      {/* ── Stats + Equipment ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        {/* Stats with totals */}
         <div className="card">
           <div className="section-title" style={{ fontSize: '0.9rem' }}>📊 Stats</div>
           {[
-            { label: 'Attack', value: fighter.base_attack, cls: 'atk', color: '#ff6b6b' },
-            { label: 'Defense', value: fighter.base_defense, cls: 'def', color: '#4d96ff' },
-            { label: 'Speed', value: fighter.base_speed, cls: 'spd', color: '#6bcb77' },
-            { label: 'Luck', value: fighter.base_luck, cls: 'lck', color: '#ffd93d' }
+            { label: 'Attack',  base: fighter.base_attack,  total: totalAtk, bonus: atkBonus, cls: 'atk', color: '#ff6b6b' },
+            { label: 'Defense', base: fighter.base_defense,  total: totalDef, bonus: defBonus, cls: 'def', color: '#4d96ff' },
+            { label: 'Speed',   base: fighter.base_speed,    total: totalSpd, bonus: spdBonus, cls: 'spd', color: '#6bcb77' },
+            { label: 'Luck',    base: fighter.base_luck,     total: totalLck, bonus: lckBonus, cls: 'lck', color: '#ffd93d' }
           ].map(s => (
             <div key={s.label} className="stat-row">
               <span className="stat-label">{s.label}</span>
-              <div className="stat-bar-bg"><div className={`stat-bar-fill stat-bar-${s.cls}`} style={{ width: `${Math.min(100, (s.value / 40) * 100)}%` }} /></div>
-              <span className="stat-value" style={{ color: s.color }}>{s.value}</span>
+              <div className="stat-bar-bg">
+                <div className={`stat-bar-fill stat-bar-${s.cls}`} style={{ width: `${Math.min(100, (s.total / 50) * 100)}%` }} />
+              </div>
+              <span className="stat-value" style={{ color: s.color }}>
+                {s.total}
+                {s.bonus > 0 && <span style={{ color: '#6bcb77', fontSize: '0.68rem', marginLeft: 3 }}>+{s.bonus}</span>}
+              </span>
             </div>
           ))}
           {fighter.referralBoost > 0 && <div style={{ marginTop: 8, fontSize: '0.72rem', color: '#6bcb77' }}>🔗 +{fighter.referralBoost}% referral boost</div>}
         </div>
+
+        {/* Equipment with stat details */}
         <div className="card">
           <div className="section-title" style={{ fontSize: '0.9rem' }}>🎒 Equipment</div>
           <div className="equip-grid">
@@ -83,7 +103,17 @@ export default function Profile({ agent, fighter, refreshFighter }) {
                   {item ? (
                     <>
                       <span className="item-name" style={{ color: RARITY_COLORS[item.rarity] }}>{item.name}</span>
-                      <span style={{ fontSize: '0.6rem', color: RARITY_COLORS[item.rarity], textTransform: 'uppercase' }}>{item.rarity}</span>
+                      <span className="item-rarity" style={{ color: RARITY_COLORS[item.rarity] }}>{item.rarity}</span>
+                      <div className="equip-stats">
+                        {item.attack_bonus > 0 && <span className="equip-stat" style={{ color: '#ff6b6b' }}>ATK+{item.attack_bonus}</span>}
+                        {item.defense_bonus > 0 && <span className="equip-stat" style={{ color: '#4d96ff' }}>DEF+{item.defense_bonus}</span>}
+                        {item.speed_bonus > 0 && <span className="equip-stat" style={{ color: '#6bcb77' }}>SPD+{item.speed_bonus}</span>}
+                        {item.luck_bonus > 0 && <span className="equip-stat" style={{ color: '#ffd93d' }}>LCK+{item.luck_bonus}</span>}
+                        {item.crit_chance > 0 && <span className="equip-stat" style={{ color: '#ff9a76' }}>CRIT+{item.crit_chance}%</span>}
+                        {item.dodge_chance > 0 && <span className="equip-stat" style={{ color: '#a8dadc' }}>DODGE+{item.dodge_chance}%</span>}
+                        {item.damage_reduction > 0 && <span className="equip-stat" style={{ color: '#4d96ff' }}>DMG-{item.damage_reduction}</span>}
+                        {item.xp_bonus_percent > 0 && <span className="equip-stat" style={{ color: '#c77dff' }}>XP+{item.xp_bonus_percent}%</span>}
+                      </div>
                     </>
                   ) : <span className="slot-label">{SLOT_LABELS[slot]}</span>}
                 </div>
@@ -93,7 +123,7 @@ export default function Profile({ agent, fighter, refreshFighter }) {
         </div>
       </div>
 
-      {/* Battle History */}
+      {/* ── Battle History ── */}
       <div className="card">
         <div className="section-title" style={{ fontSize: '0.9rem' }}>📜 Battle History</div>
         {loading && <div className="loading"><div className="spinner"></div>Loading...</div>}
@@ -113,7 +143,7 @@ export default function Profile({ agent, fighter, refreshFighter }) {
                 <span style={{ fontSize: '0.72rem', color: isWinner ? '#6bcb77' : '#ff6b6b' }}>
                   {isWinner ? `+${b.elo_winner} ELO` : `${b.elo_loser} ELO`}
                 </span>
-                <button className="btn btn-sm" style={{ background: '#1e1e3a', color: '#aaa', border: '1px solid #2a2a5a', padding: '4px 10px' }} onClick={() => setReplayBattle(b)}>Replay</button>
+                <button className="btn btn-outline btn-sm" style={{ padding: '4px 10px' }} onClick={() => setReplayBattle(b)}>Replay</button>
               </div>
             </div>
           );

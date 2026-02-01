@@ -50,3 +50,18 @@ export async function getReferralLeaderboard() {
   const r = await fetch(`${BASE}/referrals/leaderboard`, { headers: headers() });
   return r.json();
 }
+
+export async function enterQueue() {
+  const r = await fetch(`${BASE}/battles/queue`, { method: 'POST', headers: headers() });
+  if (!r.ok) { const e = await r.json(); throw new Error(e.error); }
+  return r.json();
+}
+
+export async function pollQueue(queueId) {
+  const r = await fetch(`${BASE}/battles/queue/${queueId}`, { headers: headers() });
+  return r.json();
+}
+
+export async function leaveQueue() {
+  await fetch(`${BASE}/battles/queue`, { method: 'DELETE', headers: headers() });
+}

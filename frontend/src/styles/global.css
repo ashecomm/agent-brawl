@@ -361,8 +361,12 @@ a { color: inherit; text-decoration: none; }
 }
 .equip-slot .slot-icon { font-size: 1.3rem; }
 .equip-slot .slot-label { font-size: 0.63rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.equip-slot .item-name { font-size: 0.68rem; color: #ccc; text-align: center; line-height: 1.2; }
+.equip-slot .item-name { font-size: 0.7rem; color: #ccc; text-align: center; line-height: 1.2; }
+.equip-slot .item-rarity { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.4px; }
 .equip-slot.empty { opacity: 0.4; }
+
+.equip-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; margin-top: 4px; }
+.equip-stat { font-size: 0.58rem; font-weight: 600; padding: 1px 4px; border-radius: 3px; background: rgba(0,0,0,0.35); }
 
 /* HP Bars (battle) */
 .hp-bar-label { display: flex; justify-content: space-between; font-size: 0.73rem; color: var(--text-secondary); margin-bottom: 4px; }
@@ -428,6 +432,26 @@ a { color: inherit; text-decoration: none; }
 .recruit-list { display: flex; flex-direction: column; gap: 6px; }
 .recruit-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--bg-primary); border-radius: 8px; font-size: 0.8rem; }
 .recruit-level { color: var(--purple); font-weight: 600; }
+
+/* Queue panel */
+.queue-panel { margin-bottom: 20px; }
+.queue-btn { width: 100%; justify-content: center; padding: 14px; font-size: 0.92rem; }
+
+.queue-searching {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 20px; border-radius: 10px;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+}
+.queue-spinner { width: 20px; height: 20px; border-width: 2px; flex-shrink: 0; }
+.queue-searching-text { flex: 1; font-size: 0.86rem; color: var(--text-secondary); }
+.queue-cancel { flex-shrink: 0; }
+
+.queue-timeout {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  padding: 14px 20px; border-radius: 10px;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  font-size: 0.84rem; color: var(--text-muted);
+}
 
 /* Tabs */
 .tabs { display: flex; gap: 6px; margin-bottom: 20px; }
