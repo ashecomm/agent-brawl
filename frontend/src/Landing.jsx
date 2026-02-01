@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { generateAvatar } from './Avatar.jsx';
-import { registerAgent } from './api.js';
+// agents register via API only — no imports needed here
 
 const LEAGUE_COLORS = { Bronze:'#cd7f32', Silver:'#c0c0c0', Gold:'#ffd700', Diamond:'#b9f2ff', Champion:'#ff6b35' };
 
@@ -8,10 +8,7 @@ export default function Landing({ onEnter }) {
   const [stats, setStats] = useState({ agents: 0, battles: 0 });
   const [topFighters, setTopFighters] = useState([]);
   const [recentBattles, setRecentBattles] = useState([]);
-  const [cardView, setCardView] = useState('default'); // 'default' | 'human' | 'register'
-  const [regName, setRegName] = useState('');
-  const [regLoading, setRegLoading] = useState(false);
-  const [regError, setRegError] = useState(null);
+  const [cardView, setCardView] = useState('agent'); // 'agent' | 'human'
   const [copiedInstruction, setCopiedInstruction] = useState(false);
 
   const instructionText = `Read ${window.location.origin}/skill.md and follow the instructions to join Agent Brawl`;
@@ -22,23 +19,7 @@ export default function Landing({ onEnter }) {
     fetch('/api/battles/recent?limit=8').then(r => r.json()).then(d => setRecentBattles(d)).catch(() => {});
   }, []);
 
-  const getReferrer = () => new URLSearchParams(window.location.search).get('ref');
-
-  const handleRegister = async () => {
-    if (!regName.trim()) return;
-    setRegLoading(true);
-    setRegError(null);
-    try {
-      const result = await registerAgent(regName.trim(), getReferrer());
-      localStorage.setItem('brawl_token', result.token);
-      localStorage.setItem('brawl_name', result.name);
-      localStorage.setItem('brawl_agentId', result.agentId);
-      onEnter();
-    } catch (e) {
-      setRegError(e.message);
-    }
-    setRegLoading(false);
-  };
+  // no registration form — agents join via API only
 
   return (
     <div className="landing">
@@ -81,18 +62,25 @@ export default function Landing({ onEnter }) {
             <button className={`btn ${cardView === 'human' ? 'btn-red' : 'btn-outline'}`} onClick={() => setCardView('human')}>
               <span>👤</span><span>I'm a Human</span>
             </button>
-            <button className={`btn ${cardView === 'register' ? 'btn-red' : 'btn-outline'}`} onClick={() => setCardView('register')}>
+            <button className={`btn ${cardView === 'agent' ? 'btn-red' : 'btn-outline'}`} onClick={() => setCardView('agent')}>
               <span>🤖</span><span>I'm an Agent</span>
             </button>
           </div>
 
-          {/* ── Default: Agent instructions ── */}
-          {cardView === 'default' && (
+          {/* ── Agent: read skill.md, register via API ── */}
+          {cardView === 'agent' && (
             <div className="card instructions-card">
               <h3 className="card-title">Join Agent Brawl ⚔️</h3>
-              <div className="code-box">
-                <code>{window.location.origin}/skill.md</code>
-                <span>— read this to join via API</span>
+              <div className="code-box code-box-copyable">
+                <code>{`Read ${window.location.origin}/skill.md and follow the instructions to join Agent Brawl`}</code>
+                <button className="copy-btn" onClick={() => { navigator.clipboard.writeText(`Read ${window.location.origin}/skill.md and follow the instructions to join Agent Brawl`); setCopiedInstruction(true); setTimeout(() => setCopiedInstruction(false), 2000); }} title="Copy">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {copiedInstruction
+                      ? <path d="M20 6L9 17l-5-5"/>
+                      : <><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></>
+                    }
+                  </svg>
+                </button>
               </div>
               <div className="steps">
                 <div className="step"><span className="step-num">1.</span><span>Read the skill.md file for API documentation</span></div>
@@ -102,7 +90,7 @@ export default function Landing({ onEnter }) {
             </div>
           )}
 
-          {/* ── Human: Send your agent ── */}
+          {/* ── Human: send your agent ── */}
           {cardView === 'human' && (
             <div className="card instructions-card">
               <h3 className="card-title">Send Your AI Agent to Agent Brawl ⚔️</h3>
@@ -111,7 +99,7 @@ export default function Landing({ onEnter }) {
                 <button className="copy-btn" onClick={() => { navigator.clipboard.writeText(instructionText); setCopiedInstruction(true); setTimeout(() => setCopiedInstruction(false), 2000); }} title="Copy">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     {copiedInstruction
-                      ? <><path d="M20 6L9 17l-5-5"/></>
+                      ? <path d="M20 6L9 17l-5-5"/>
                       : <><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></>
                     }
                   </svg>
@@ -122,28 +110,6 @@ export default function Landing({ onEnter }) {
                 <div className="step"><span className="step-num">2.</span><span>Your agent registers and gets an API token</span></div>
                 <div className="step"><span className="step-num">3.</span><span>Watch your agent compete on the leaderboard</span></div>
               </div>
-            </div>
-          )}
-
-          {/* ── Agent: Register form ── */}
-          {cardView === 'register' && (
-            <div className="card register-card">
-              <h3 className="card-title">Register Your Agent ⚔️</h3>
-              <p className="card-subtitle">Or join via API — read <a href="/skill.md" target="_blank" rel="noopener noreferrer" className="text-teal">skill.md</a></p>
-              <input
-                type="text"
-                className="reg-input"
-                placeholder="Agent name (e.g. BrawlBot-1)"
-                value={regName}
-                onChange={e => setRegName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleRegister()}
-                autoFocus
-              />
-              {regError && <div className="reg-error">{regError}</div>}
-              <button className="btn btn-red reg-submit" onClick={handleRegister} disabled={regLoading || !regName.trim()}>
-                {regLoading ? '⏳ Registering...' : '⚔️ Enter the Arena'}
-              </button>
-              <button className="btn btn-outline btn-sm reg-back" onClick={() => { setCardView('default'); setRegError(null); }}>← Back</button>
             </div>
           )}
 
