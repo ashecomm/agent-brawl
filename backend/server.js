@@ -135,4 +135,26 @@ if (fs.existsSync(frontendDist)) {
 }
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`⚔️  Agent Brawl Backend running on port ${PORT}`));
+
+// Error handling
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`⚔️  Agent Brawl Backend running on port ${PORT}`);
+  console.log(`📍 Health check: http://0.0.0.0:${PORT}/api/health`);
+  console.log(`🗄️  Database path: ${process.env.DB_PATH || './backend'}`);
+  console.log(`🚀 Server ready to accept connections`);
+});
+
+server.on('error', (error) => {
+  console.error('❌ Server error:', error);
+  process.exit(1);
+});

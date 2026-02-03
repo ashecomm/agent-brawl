@@ -9,10 +9,14 @@ if (!fs.existsSync(dataDir)) {
 }
 
 const DB_PATH = path.join(dataDir, 'brawl.db');
+console.log(`📦 Initializing database at: ${DB_PATH}`);
+
 const db = new Database(DB_PATH);
 
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
+
+console.log(`✅ Database connected successfully`);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS agents (
