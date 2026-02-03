@@ -121,5 +121,17 @@ app.use('/api/referrals', authMiddleware, referralsRouter);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
-const PORT = 3001;
+// ─── Serve Frontend (Production) ─────────────────────────────
+const path = require('path');
+const frontendDist = path.join(__dirname, '../frontend/dist');
+if (require('fs').existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(frontendDist, 'index.html'));
+    }
+  });
+}
+
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`⚔️  Agent Brawl Backend running on port ${PORT}`));
