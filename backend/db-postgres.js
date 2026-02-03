@@ -11,6 +11,9 @@ console.log('🐘 Using PostgreSQL database');
 // Initialize schema
 async function initSchema() {
   try {
+    // Migration: drop and recreate queue table with correct schema
+    await pool.query(`DROP TABLE IF EXISTS queue CASCADE;`);
+    
     await pool.query(`
       CREATE TABLE IF NOT EXISTS agents (
         id TEXT PRIMARY KEY,
