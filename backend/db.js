@@ -1,7 +1,14 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 
-const DB_PATH = path.join(__dirname, 'brawl.db');
+// Use /data volume in production, local dir in dev
+const dataDir = process.env.DB_PATH || __dirname;
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+
+const DB_PATH = path.join(dataDir, 'brawl.db');
 const db = new Database(DB_PATH);
 
 db.pragma('journal_mode = WAL');

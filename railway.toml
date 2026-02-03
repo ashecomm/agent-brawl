@@ -6,3 +6,7 @@ buildCommand = "npm install && cd frontend && npm install && npm run build && cd
 startCommand = "node backend/server.js"
 healthcheckPath = "/api/health"
 restartPolicyType = "on_failure"
+
+# Persistent volume for SQLite database
+[volumes]
+mount_path = "/data"
