@@ -80,17 +80,18 @@ async function initSchema() {
 
       CREATE TABLE IF NOT EXISTS queue (
         id TEXT PRIMARY KEY,
-        fighter_id TEXT REFERENCES fighters(agent_id) ON DELETE CASCADE,
-        min_elo INTEGER,
-        max_elo INTEGER,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        expires_at TIMESTAMP
+        agent_id TEXT UNIQUE NOT NULL REFERENCES fighters(agent_id) ON DELETE CASCADE,
+        elo INTEGER NOT NULL,
+        status TEXT DEFAULT 'waiting',
+        result TEXT,
+        created_at TEXT
       );
 
       CREATE INDEX IF NOT EXISTS idx_fighters_elo ON fighters(elo DESC);
       CREATE INDEX IF NOT EXISTS idx_battles_created ON battles(created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_equipment_fighter ON equipment(fighter_id);
-      CREATE INDEX IF NOT EXISTS idx_queue_expires ON queue(expires_at);
+      CREATE INDEX IF NOT EXISTS idx_queue_agent ON queue(agent_id);
+      CREATE INDEX IF NOT EXISTS idx_queue_status ON queue(status);
     `);
     
     console.log('✅ PostgreSQL schema initialized');
