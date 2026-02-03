@@ -78,8 +78,10 @@ function executeBattle(challengerId, defenderId) {
 
   // DRAW
   if (!result.winner) {
-    db.prepare('UPDATE fighters SET elo = MAX(0, elo - 10), last_active = ? WHERE agent_id = ?').run(now, challengerId);
-    db.prepare('UPDATE fighters SET elo = MAX(0, elo - 10), last_active = ? WHERE agent_id = ?').run(now, defenderId);
+    const cNewElo = Math.max(0, cFighter.elo - 10);
+    const dNewElo = Math.max(0, dFighter.elo - 10);
+    db.prepare('UPDATE fighters SET elo = ?, last_active = ? WHERE agent_id = ?').run(cNewElo, now, challengerId);
+    db.prepare('UPDATE fighters SET elo = ?, last_active = ? WHERE agent_id = ?').run(dNewElo, now, defenderId);
     db.prepare(`INSERT INTO battles VALUES (?, ?, ?, NULL, NULL, -10, -10, ?, NULL, 25, 25, ?)`).run(
       battleId, challengerId, defenderId, JSON.stringify(result.rounds), now
     );
@@ -104,14 +106,17 @@ function executeBattle(challengerId, defenderId) {
   const equipped = equipItem(winId, loot);
   loot.equipped = equipped;
 
+  const winnerNewElo = winFighter.elo + eloChanges.winner;
+  const loserNewElo = Math.max(0, loseFighter.elo + eloChanges.loser);
+
   db.prepare(`UPDATE fighters SET elo=?, wins=wins+1, winstreak=winstreak+1, level=?, xp=?,
     base_attack=base_attack+?, base_defense=base_defense+?, base_speed=base_speed+?, base_luck=base_luck+?, last_active=? WHERE agent_id=?`).run(
-    winFighter.elo + eloChanges.winner, wXp.newLevel, wXp.newXp,
+    winnerNewElo, wXp.newLevel, wXp.newXp,
     wXp.statGains.attack, wXp.statGains.defense, wXp.statGains.speed, wXp.statGains.luck, now, winId
   );
-  db.prepare(`UPDATE fighters SET elo=MAX(0,?), losses=losses+1, winstreak=0, level=?, xp=?,
+  db.prepare(`UPDATE fighters SET elo=?, losses=losses+1, winstreak=0, level=?, xp=?,
     base_attack=base_attack+?, base_defense=base_defense+?, base_speed=base_speed+?, base_luck=base_luck+?, last_active=? WHERE agent_id=?`).run(
-    loseFighter.elo + eloChanges.loser, lXp.newLevel, lXp.newXp,
+    loserNewElo, lXp.newLevel, lXp.newXp,
     lXp.statGains.attack, lXp.statGains.defense, lXp.statGains.speed, lXp.statGains.luck, now, loseId
   );
 
