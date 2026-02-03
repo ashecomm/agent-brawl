@@ -112,10 +112,6 @@ function authMiddleware(req, res, next) {
   next();
 }
 
-// ─── Admin Routes (TEMPORARY - DELETE AFTER LAUNCH!) ─────────
-const adminRouter = require('./routes/admin');
-app.use('/api/admin', adminRouter);
-
 // ─── Auth Routes ──────────────────────────────────────────────
 const fightersRouter = require('./routes/fighters');
 const battlesRouter = require('./routes/battles');
