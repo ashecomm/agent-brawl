@@ -168,7 +168,9 @@ router.post('/queue', (req, res) => {
   if (!fighter) return res.status(404).json({ error: 'Fighter not found' });
 
   // Clean expired entries (>60s)
-  db.prepare(`DELETE FROM queue WHERE created_at < datetime('now', '-60 seconds')`).run();
+  // PostgreSQL/SQLite compatible: compare timestamps
+  const expiryTime = new Date(Date.now() - 60000).toISOString();
+  db.prepare(`DELETE FROM queue WHERE created_at < ?`).run(expiryTime);
 
   // Already queued?
   const existing = db.prepare('SELECT * FROM queue WHERE agent_id = ?').get(agentId);
