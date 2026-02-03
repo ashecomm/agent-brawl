@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const db = require('./db');
 const { getLeague } = require('./logic/eloSystem');
 const app = express();
@@ -122,9 +124,8 @@ app.use('/api/referrals', authMiddleware, referralsRouter);
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
 // ─── Serve Frontend (Production) ─────────────────────────────
-const path = require('path');
 const frontendDist = path.join(__dirname, '../frontend/dist');
-if (require('fs').existsSync(frontendDist)) {
+if (fs.existsSync(frontendDist)) {
   app.use(express.static(frontendDist));
   app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
