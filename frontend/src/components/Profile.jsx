@@ -16,7 +16,7 @@ export default function Profile({ agent, fighter, refreshFighter }) {
     if (agent) getMyBattles().then(b => { setBattles(b); setLoading(false); });
   }, [agent]);
 
-  if (!fighter) return <div className="empty-state"><div className="icon">👤</div><p>No fighter data</p></div>;
+  if (!fighter) return <div className="empty-state"><div className="icon">👤</div><p>Unable to load fighter profile. Try refreshing the page.</p></div>;
   if (replayBattle) return <BattleView result={replayBattle} agent={agent} onClose={() => setReplayBattle(null)} />;
 
   const equip = fighter.equipment || [];
@@ -127,7 +127,13 @@ export default function Profile({ agent, fighter, refreshFighter }) {
       <div className="card">
         <div className="section-title" style={{ fontSize: '0.9rem' }}>📜 Battle History</div>
         {loading && <div className="loading"><div className="spinner"></div>Loading...</div>}
-        {!loading && battles.length === 0 && <div style={{ color: '#555', fontSize: '0.82rem', padding: '20px 0' }}>No battles yet. Go to the Arena!</div>}
+        {!loading && battles.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '32px 0' }}>
+            <div style={{ fontSize: '2rem', marginBottom: 8, opacity: 0.5 }}>⚔️</div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>No battles recorded yet.</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 6 }}>Visit the Arena to challenge opponents!</div>
+          </div>
+        )}
         {!loading && battles.map((b, i) => {
           const isWinner = b.winner === agent?.agentId;
           const opName = b.challenger === agent?.agentId ? (b.defenderName || b.defender) : (b.challengerName || b.challenger);

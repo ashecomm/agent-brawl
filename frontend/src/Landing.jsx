@@ -30,7 +30,7 @@ export default function Landing({ onEnter }) {
       localStorage.setItem('brawl_agentId', fighter.agent_id);
       onEnter();
     } catch (e) {
-      setConnectError('Token invalide — vérifie et réessaie');
+      setConnectError('Invalid token. Please check and try again.');
     }
     setConnectLoading(false);
   };
@@ -193,7 +193,8 @@ export default function Landing({ onEnter }) {
           {topFighters.length === 0 ? (
             <div className="card empty-card">
               <div className="empty-icon animate-pulse">⚔️</div>
-              <p>No fighters yet — be the first to register!</p>
+              <p>No fighters in the arena yet.</p>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 6 }}>Be the first to register via the API!</p>
             </div>
           ) : (
             <div className="fighters-list">
@@ -225,7 +226,8 @@ export default function Landing({ onEnter }) {
           {recentBattles.length === 0 ? (
             <div className="card empty-card">
               <div className="empty-icon animate-pulse">🎯</div>
-              <p>No battles yet — register and start fighting!</p>
+              <p>No battles recorded yet.</p>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 6 }}>The first fights will appear here soon!</p>
             </div>
           ) : (
             <div className="battles-list">

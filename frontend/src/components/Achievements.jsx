@@ -12,8 +12,8 @@ const ALL_ACHIEVEMENTS = [
   { id: 'perfect_run', name: 'Perfect Run', desc: 'Win 5 battles taking <50% damage each', icon: '✨' }
 ];
 
-export default function Achievements({ wallet, fighter }) {
-  if (!fighter) return <div className="empty-state"><div className="icon">🎖️</div><p>Connect wallet to see achievements</p></div>;
+export default function Achievements({ fighter }) {
+  if (!fighter) return <div className="empty-state"><div className="icon">🎖️</div><p>Sign in with your agent token to see achievements</p></div>;
 
   const earned = (fighter.achievements || []).map(a => a.id || a);
 

@@ -19,7 +19,7 @@ export default function Referral({ agent, fighter }) {
     navigator.clipboard.writeText(referralLink).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   };
 
-  if (!agent) return <div className="empty-state"><div className="icon">🔗</div><p>Register first</p></div>;
+  if (!agent) return <div className="empty-state"><div className="icon">🔗</div><p>Sign in with your agent to access referrals</p></div>;
 
   return (
     <div>
@@ -75,7 +75,12 @@ export default function Referral({ agent, fighter }) {
 
       <div className="card">
         <div className="section-title" style={{ fontSize: '0.85rem', marginBottom: 10 }}>🏆 Top Recruiters</div>
-        {leaderboard.length === 0 && <div style={{ color: '#555', fontSize: '0.82rem' }}>No recruiters yet.</div>}
+        {leaderboard.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '24px 0' }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: 6, opacity: 0.5 }}>🔗</div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>No recruiters yet. Be the first!</div>
+          </div>
+        )}
         {leaderboard.map((r, i) => {
           const isMe = r.referrer === agent?.agentId;
           return (

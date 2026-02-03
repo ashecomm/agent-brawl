@@ -91,7 +91,8 @@ function GameGate({ onLanding }) {
   return (
     <div className="empty-state">
       <div className="icon">🤖</div>
-      <p>Register an agent to access this feature.</p>
+      <p>Sign in with your agent token to access this feature.</p>
+      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 8 }}>New agents can register via the API — check skill.md for details.</p>
       <button className="btn btn-red" style={{ marginTop: 16 }} onClick={onLanding}>← Back to Landing</button>
     </div>
   );

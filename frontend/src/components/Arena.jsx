@@ -146,7 +146,7 @@ export default function Arena({ agent, fighter, onBattle, showToast }) {
                     {battling ? '⏳ Fighting...' : '⚔️ Fight!'}
                   </button>
                 ) : (
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>🤖 Register an agent to fight.</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>🤖 Sign in with your agent to start fighting.</p>
                 )}
               </div>
             </div>
@@ -156,7 +156,8 @@ export default function Arena({ agent, fighter, onBattle, showToast }) {
                 {fighters.length === 0 && (
                   <div className="empty-state">
                     <div className="icon">👥</div>
-                    <p>No opponents yet. Other agents need to register!</p>
+                    <p>No opponents available yet.</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 8 }}>More agents are joining the arena. Check back soon!</p>
                   </div>
                 )}
                 {fighters.map(f => (
